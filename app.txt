@@ -1,0 +1,105 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from PIL import Image
+
+
+# Ruta a la imagen
+ruta_imagen = "C:\JHAA\CEPAL_2\CEPAL.jpg"
+
+
+# Función para cargar y mostrar la imagen
+def cargar_imagen(ruta):
+    imagen = Image.open(ruta)
+    return imagen
+
+# Título de la aplicación
+st.title('CEPAL - INDICADORES ODS-CORR')
+
+# Cargar y mostrar la imagen
+imagen = cargar_imagen(ruta_imagen)
+st.image(imagen, caption='Imagen "CEPAL"', use_column_width=True)
+
+
+
+
+
+import pandas as pd
+import streamlit as st
+import matplotlib.pyplot as plt
+
+# Ruta del archivo Excel
+archivo_ruta = r'C:\JHAA\CEPAL_2\archivo_reduced_df.xlsx'
+
+# Leer el archivo Excel en un DataFrame
+df = pd.read_excel(archivo_ruta)
+
+# Filtrar por las columnas que comienzan con 'CRP' y 'GDE'
+columnas_crp_gde = df.filter(regex='^(CRP|GDE)').columns
+
+# Filtrar por las columnas y la columna 'Country'
+df_filtrado = df[['Year', 'Country'] + list(columnas_crp_gde)]
+
+# Mostrar las columnas únicas disponibles en 'Country'
+paises_disponibles = df_filtrado['Country'].unique()
+
+# Permitir al usuario seleccionar países individualmente
+paises_seleccionados = st.multiselect("Seleccione los países", paises_disponibles, paises_disponibles)
+
+# Permitir al usuario seleccionar variables del eje Y
+variables_y_seleccionadas = st.multiselect("Seleccione las variables del eje Y", list(columnas_crp_gde), list(columnas_crp_gde))
+
+# Graficar para cada país seleccionado
+for pais in paises_seleccionados:
+    st.subheader(f'Datos para {pais}')
+    
+    # Filtrar el DataFrame por el país seleccionado
+    df_pais = df_filtrado[df_filtrado['Country'] == pais]
+    
+    # Graficar como líneas
+    fig, ax = plt.subplots()
+    for variable_y in variables_y_seleccionadas:
+        ax.plot(df_pais['Year'], df_pais[variable_y], label=variable_y)
+
+    ax.set_xlabel('Year')
+    ax.set_ylabel('Valor')
+    ax.set_title(f'Datos para {pais}')
+    ax.legend()
+    
+    # Mostrar el gráfico en la interfaz de Streamlit
+    st.pyplot(fig)
+
+
+
+import pandas as pd
+import streamlit as st
+import matplotlib.pyplot as plt
+
+# Ruta del nuevo archivo Excel
+archivo_ruta = r'C:\JHAA\CEPAL_2\archivo_reduced_df2.xlsx'
+
+# Leer el archivo Excel en un DataFrame
+df = pd.read_excel(archivo_ruta)
+
+# Filtrar por las columnas que comienzan con 'CRP' y 'GDE'
+columnas_crp_gde = df.filter(regex='^(CRP|GDE)').columns
+
+# Mostrar las columnas únicas disponibles en 'Country'
+paises_disponibles = df['Country'].unique()
+
+# Permitir al usuario seleccionar variables del eje Y
+variables_y_seleccionadas = st.multiselect("Seleccione las variables del eje Y", list(columnas_crp_gde), list(columnas_crp_gde))
+
+# Graficar
+fig, ax = plt.subplots()
+for variable_y in variables_y_seleccionadas:
+    ax.plot(df['Year'], df[variable_y], label=variable_y)
+
+ax.set_xlabel('Year')
+ax.set_ylabel('Valor')
+ax.set_title(f'Datos para todas las variables seleccionadas')
+ax.legend()
+
+# Mostrar el gráfico en la interfaz de Streamlit
+st.pyplot(fig)
